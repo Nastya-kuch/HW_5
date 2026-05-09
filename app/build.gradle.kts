@@ -72,13 +72,11 @@ dependencies {
     implementation("androidx.room:room-ktx:2.8.4")
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    // Юнит-тесты
-    // Юнит-тесты
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-
-// Интеграционные тесты
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0")
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.room:room-testing:2.6.1")
     androidTestImplementation("androidx.test:core:1.5.0")
