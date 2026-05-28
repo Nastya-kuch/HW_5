@@ -3,17 +3,18 @@
 Всего: 12 тестов
 
 Юнит-тесты:
-1.успешную загрузку данных
-2.ошибку загрузки
-3.retry() после ошибки
-4.корректное начальное состояние экрана
-5.отсутствие дублей
-6.корректная обработка пустого результата
+1. начальное состояние экрана (initial state is loading)
+2. успешная загрузка данных (loadFirstPage success sets characters)
+3. ошибка загрузки (loadFirstPage error with no cache shows error message)
+4. retry() после ошибки (retry after error loads data successfully)
+5. пустой результат поиска (search with empty result sets isEmptySearchResult true)
+6. отсутствие дублей (saveSearchResult deletes previous entries before insert to avoid duplicates)
+7. корректное преобразование моделей (getCharactersPage converts API response correctly)
 
 интеграционные:
-3 теста по сценарию Repository + Room (что положили в базу, то и получили; логика обновления кеша; проверяет последний сохранены запрос)
-ошибка-> нажатие Retry -> успешное состояние
-
+1. DAO + Room (insertAndReadCharacters)
+2. Repository + Room (repositoryFetchesFromApiAndSavesToCache)
+3. UI: ошибка → Retry → успех (error_thenRetry_showsData)
 нетревиальные:
-состояние после ошибки и повторной загрузки переходит корректно
-пустой результат поиска дает именно Empty, а не Success(emptyList())
+1. retry() инициирует новый запрос(retry calls repository again)
+2. отсутствие дублей в кеше(repeated search for same query does not duplicate characters)
