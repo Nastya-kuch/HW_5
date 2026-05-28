@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.hw_5.data.model.Character
 import com.example.hw_5.data.repository.CharacterRepository
+import com.example.hw_5.data.repository.PageInfo
 import com.example.hw_5.data.repository.SearchCacheRepository
 import com.example.hw_5.ui.screens.ListScreen
 import com.example.hw_5.ui.viewmodel.CharacterViewModel
@@ -34,8 +35,7 @@ class UiTest {
 
         coEvery { repository.getCharactersPage(1) } throws
                 RuntimeException("No internet") andThen fakeCharacters
-        coEvery { repository.getPagesInfo() } returns
-                com.example.hw_5.data.repository.PageInfo(1, false)
+        coEvery { repository.getPagesInfo() } returns PageInfo(1, false)
         coEvery { cacheRepository.getLastSearchResult() } returns null
         coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
 
@@ -50,6 +50,7 @@ class UiTest {
                 onLoadNextPage = {}
             )
         }
+
         composeTestRule.waitUntil(5000) {
             composeTestRule
                 .onAllNodesWithText("Повторить")
@@ -58,8 +59,6 @@ class UiTest {
         }
 
         composeTestRule.onNodeWithText("Повторить").assertIsDisplayed()
-
-
         composeTestRule.onNodeWithText("Повторить").performClick()
 
         composeTestRule.waitUntil(5000) {
@@ -68,6 +67,7 @@ class UiTest {
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
+
         composeTestRule.onNodeWithText("Rick Sanchez").assertIsDisplayed()
     }
 }

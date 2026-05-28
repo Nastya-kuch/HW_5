@@ -9,6 +9,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -34,12 +35,14 @@ class CharacterViewModelTest {
     fun setup() {
         repository = mockk()
         cacheRepository = mockk()
+        coEvery { cacheRepository.getLastSearchResult() } returns null
+        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
     }
 
     @Test
     fun `initial state is loading`() = runTest {
         coEvery { repository.getCharactersPage(1) } coAnswers {
-            kotlinx.coroutines.delay(1000)
+            delay(1000)
             fakeCharacters
         }
         coEvery { repository.getPagesInfo() } returns PageInfo(42, true)
@@ -54,7 +57,6 @@ class CharacterViewModelTest {
     fun `loadFirstPage success sets characters`() = runTest {
         coEvery { repository.getCharactersPage(1) } returns fakeCharacters
         coEvery { repository.getPagesInfo() } returns PageInfo(42, true)
-        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
 
         viewModel = CharacterViewModel(repository, cacheRepository)
         advanceUntilIdle()
@@ -67,7 +69,6 @@ class CharacterViewModelTest {
     @Test
     fun `loadFirstPage error with no cache shows error message`() = runTest {
         coEvery { repository.getCharactersPage(1) } throws RuntimeException("No internet")
-        coEvery { cacheRepository.getLastSearchResult() } returns null
 
         viewModel = CharacterViewModel(repository, cacheRepository)
         advanceUntilIdle()
@@ -80,9 +81,7 @@ class CharacterViewModelTest {
     @Test
     fun `retry after error loads data successfully`() = runTest {
         coEvery { repository.getCharactersPage(1) } throws RuntimeException("No internet") andThen fakeCharacters
-        coEvery { cacheRepository.getLastSearchResult() } returns null
         coEvery { repository.getPagesInfo() } returns PageInfo(42, true)
-        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
 
         viewModel = CharacterViewModel(repository, cacheRepository)
         advanceUntilIdle()
@@ -99,7 +98,6 @@ class CharacterViewModelTest {
     fun `search with empty result sets isEmptySearchResult true`() = runTest {
         coEvery { repository.getCharactersPage(1) } returns fakeCharacters
         coEvery { repository.getPagesInfo() } returns PageInfo(42, true)
-        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
         coEvery { repository.searchCharacters("xyz") } returns emptyList()
 
         viewModel = CharacterViewModel(repository, cacheRepository)
@@ -117,27 +115,30 @@ class CharacterViewModelTest {
     fun `repeated search for same query does not duplicate characters`() = runTest {
         coEvery { repository.getCharactersPage(1) } returns fakeCharacters
         coEvery { repository.getPagesInfo() } returns PageInfo(42, true)
-        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
         coEvery { repository.searchCharacters("Rick") } returns listOf(fakeCharacters[0])
-        coEvery { cacheRepository.getSearchResult("Rick") } returns null
 
         viewModel = CharacterViewModel(repository, cacheRepository)
         advanceUntilIdle()
 
         viewModel.updateSearchQuery("Rick")
         advanceUntilIdle()
+
+        assertEquals(1, viewModel.uiState.characters.size)
+        val firstCharacter = viewModel.uiState.characters[0]
+
         viewModel.updateSearchQuery("Rick")
         advanceUntilIdle()
 
+
         assertEquals(1, viewModel.uiState.characters.size)
+        assertEquals(firstCharacter.id, viewModel.uiState.characters[0].id)
+        assertEquals(firstCharacter.name, viewModel.uiState.characters[0].name)
     }
 
     @Test
     fun `retry calls repository again`() = runTest {
         coEvery { repository.getCharactersPage(1) } throws RuntimeException("fail") andThen fakeCharacters
-        coEvery { cacheRepository.getLastSearchResult() } returns null
         coEvery { repository.getPagesInfo() } returns PageInfo(1, false)
-        coEvery { cacheRepository.saveSearchResult(any(), any()) } returns Unit
 
         viewModel = CharacterViewModel(repository, cacheRepository)
         advanceUntilIdle()
@@ -146,5 +147,4 @@ class CharacterViewModelTest {
 
         coVerify(exactly = 2) { repository.getCharactersPage(1) }
     }
-
 }

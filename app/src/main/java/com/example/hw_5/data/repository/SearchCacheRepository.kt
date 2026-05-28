@@ -1,6 +1,5 @@
 package com.example.hw_5.data.repository
 
-
 import android.util.Log
 import com.example.hw_5.data.local.CharacterDao
 import com.example.hw_5.data.local.CharacterEntity
@@ -39,6 +38,7 @@ class SearchCacheRepository @Inject constructor(
                 Log.d("CACHE", "Сохранено ${entities.size} персонажей для запроса '$key'")
             } catch (e: Exception) {
                 Log.e("CACHE", "Ошибка сохранения кэша для '$query': ${e.message}", e)
+                throw e
             }
         }
     }
@@ -51,7 +51,7 @@ class SearchCacheRepository @Inject constructor(
                 if (entities.isEmpty()) null else entities.map { it.toCharacter() }
             } catch (e: Exception) {
                 Log.e("CACHE", "Ошибка чтения кэша для '$query': ${e.message}", e)
-                null
+                throw e
             }
         }
     }
@@ -66,10 +66,11 @@ class SearchCacheRepository @Inject constructor(
                 lastQuery to characters
             } catch (e: Exception) {
                 Log.e("CACHE", "Ошибка восстановления последнего кэша: ${e.message}", e)
-                null
+                throw e
             }
         }
     }
+
     suspend fun searchInCache(query: String): List<Character>? {
         return withContext(Dispatchers.IO) {
             try {
@@ -77,7 +78,7 @@ class SearchCacheRepository @Inject constructor(
                 if (entities.isEmpty()) null else entities.map { it.toCharacter() }
             } catch (e: Exception) {
                 Log.e("CACHE", "Ошибка поиска в кэше: ${e.message}", e)
-                null
+                throw e
             }
         }
     }

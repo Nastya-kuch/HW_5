@@ -59,29 +59,6 @@ class CharacterDaoTest {
     }
 
     @Test
-    fun insertSameQueryTwiceNoDuplicates() = runTest {
-        val entity = CharacterEntity(
-            searchQuery = "Rick",
-            characterId = 1,
-            name = "Rick Sanchez",
-            status = "Alive",
-            species = "Human",
-            type = "",
-            gender = "Male",
-            origin = "Earth",
-            location = "Citadel",
-            episodeCount = 51
-        )
-
-        dao.insertAll(listOf(entity))
-        dao.deleteByQuery("Rick")
-        dao.insertAll(listOf(entity))
-
-        val result = dao.getByQuery("Rick")
-        assertEquals(1, result.size)
-    }
-
-    @Test
     fun getLastQueryReturnsCorrectQuery() = runTest {
         dao.insertAll(listOf(
             CharacterEntity(

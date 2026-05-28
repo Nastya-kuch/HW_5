@@ -36,6 +36,14 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
+            excludes += "/META-INF/AL2.0"
+            excludes += "/META-INF/LGPL2.1"
+        }
+    }
 }
 
 dependencies {
@@ -75,11 +83,12 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0")
     androidTestImplementation("io.mockk:mockk-android:1.13.8")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    androidTestImplementation("androidx.room:room-testing:2.8.4")
     androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+
 }
 
